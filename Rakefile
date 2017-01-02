@@ -9,10 +9,10 @@ namespace :db do
 
   desc "Create the database"
   task :create do
-    p db_config_admin
-    p db_config
     ActiveRecord::Base.establish_connection(db_config_admin)
-#    ActiveRecord::Base.connection.create_database(db_config["database"])
+    unless db_config_admin['adapter'] == 'sqlite3'
+      ActiveRecord::Base.connection.create_database(db_config["database"])
+    end
     puts "Database created."
   end
 

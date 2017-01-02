@@ -1,4 +1,5 @@
 require 'active_record'
+require 'require_all'
 require 'yaml'
 
 namespace :db do
@@ -6,6 +7,7 @@ namespace :db do
 
   db_config       = YAML::load(File.open('config/database.yml'))[env]
   db_config_admin = db_config
+
 
   desc "Create the database"
   task :create do
@@ -16,10 +18,18 @@ namespace :db do
     puts "Database created."
   end
 
+  desc "Seed the database"
+  task :seed do
+    ActiveRecord::Base.establish_connection(db_config_admin)
+    require_all 'models/*.rb'
+    require_relative 'db/seeds.rb'
+  end
+
   desc "Migrate the database"
   task :migrate do
     ActiveRecord::Base.establish_connection(db_config)
     ActiveRecord::Migrator.migrate("db/migrate/")
+
     Rake::Task["db:schema"].invoke
     puts "Database migrated."
   end
